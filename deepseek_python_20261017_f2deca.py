@@ -29,11 +29,11 @@
 
         header h1 {
             margin: 0;
-            font-size: 1.8rem;
+            font-size: 1.8 rem;
         }
 
         #search-input {
-            padding: 0.5rem 1rem;
+            padding: 0.5 rem 1 rem;
             border-radius: 20px;
             border: none;
             width: 300px;
