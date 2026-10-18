@@ -1,3 +1,11 @@
+import streamlit as st
+import streamlit.components.v1 as components
+
+# إعدادات الصفحة
+st.set_page_config(page_title="مكتبتي الرقمية", layout="wide")
+
+# الكود كامل ديال الموقع (HTML + CSS + JS)
+html_code = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -8,37 +16,86 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
     <style>
         /* ==================== CSS (التصميم) ==================== */
+        :root {
+            --bg-color: #f4f4f9;
+            --text-color: #333;
+            --header-bg: #2c3e50;
+            --card-bg: #ffffff;
+            --card-text: #2c3e50;
+            --card-author: #7f8c8d;
+            --btn-primary: #3498db;
+            --btn-hover: #2980b9;
+            --btn-success: #2ecc71;
+            --btn-success-hover: #27ae60;
+            --btn-danger: #e74c3c;
+            --btn-danger-hover: #c0392b;
+        }
+
+        /* الوضع الليلي */
+        body.dark-mode {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --header-bg: #1e1e1e;
+            --card-bg: #2c2c2c;
+            --card-text: #e0e0e0;
+            --card-author: #a0a0a0;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
         }
 
         /* الهيدر */
         header {
-            background-color: #2c3e50;
+            background-color: var(--header-bg);
             color: white;
-            padding: 1 rem 2 rem;
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            gap: 1rem;
+            transition: background-color 0.3s;
         }
 
         header h1 {
             margin: 0;
-            font-size: 1.8 rem;
+            font-size: 1.8rem;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
         }
 
         #search-input {
-            padding: 0.5 rem 1 rem;
+            padding: 0.5rem 1rem;
             border-radius: 20px;
             border: none;
-            width: 300px;
+            width: 250px;
             font-size: 1rem;
             outline: none;
+        }
+
+        #theme-toggle {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        #theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         /* شبكة الكتب */
@@ -51,15 +108,16 @@
 
         /* بطاقة الكتاب */
         .book-card {
-            background: white;
+            background: var(--card-bg);
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 1.5rem;
             text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .book-card:hover {
@@ -67,22 +125,44 @@
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
 
+        /* صورة غلاف الكتاب */
+        .book-cover {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
         .book-card h3 {
             margin-top: 0;
             font-size: 1.2rem;
-            color: #2c3e50;
+            color: var(--card-text);
             min-height: 50px;
         }
 
         .book-card p {
-            color: #7f8c8d;
+            color: var(--card-author);
             font-size: 0.9rem;
             margin-bottom: 1.5rem;
         }
 
         /* الأزرار */
         .book-card button, .book-card .download-btn {
-            background-color: #3498db;
+            background-color: var(--btn-primary);
             color: white;
             border: none;
             padding: 0.6rem 1.2rem;
@@ -96,30 +176,31 @@
         }
 
         .book-card .download-btn {
-            background-color: #2ecc71;
+            background-color: var(--btn-success);
         }
 
         .book-card button:hover {
-            background-color: #2980b9;
+            background-color: var(--btn-hover);
         }
 
         .book-card .download-btn:hover {
-            background-color: #27ae60;
+            background-color: var(--btn-success-hover);
         }
 
         /* شاشة القراءة */
         #reader-screen {
-            background-color: #ecf0f1;
+            background-color: var(--bg-color);
             min-height: 100vh;
+            transition: background-color 0.3s;
         }
 
         #reader-screen header {
-            background-color: #2c3e50;
+            background-color: var(--header-bg);
             padding: 0.8rem 2rem;
         }
 
         #reader-screen #back-btn {
-            background-color: #e74c3c;
+            background-color: var(--btn-danger);
             color: white;
             border: none;
             padding: 0.5rem 1rem;
@@ -129,12 +210,13 @@
         }
 
         #reader-screen #back-btn:hover {
-            background-color: #c0392b;
+            background-color: var(--btn-danger-hover);
         }
 
         #reader-title {
             margin: 0;
             font-size: 1.4rem;
+            color: white;
         }
 
         #reader-content {
@@ -143,11 +225,13 @@
             flex-direction: column;
             align-items: center;
             overflow-y: auto;
+            background-color: #525659; /* خلفية ناعمة للقراءة */
+            min-height: 80vh;
         }
 
         #pdf-canvas {
             background: white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             max-width: 100%;
             height: auto;
         }
@@ -158,10 +242,14 @@
             gap: 1rem;
             align-items: center;
             font-size: 1.1rem;
+            color: white;
+            background: rgba(0,0,0,0.5);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
         }
 
         #pdf-controls button {
-            background-color: #3498db;
+            background-color: var(--btn-primary);
             color: white;
             border: none;
             padding: 0.5rem 1.5rem;
@@ -170,16 +258,16 @@
         }
 
         #pdf-controls button:hover {
-            background-color: #2980b9;
+            background-color: var(--btn-hover);
         }
 
         #pdf-controls button:disabled {
-            background-color: #bdc3c7;
+            background-color: #7f8c8d;
             cursor: not-allowed;
         }
 
         .download-btn {
-            background-color: #2ecc71;
+            background-color: var(--btn-success);
             color: white;
             text-decoration: none;
             padding: 0.5rem 1rem;
@@ -207,7 +295,10 @@
     <div id="home-screen">
         <header>
             <h1>مكتبتي الرقمية</h1>
-            <input type="text" id="search-input" placeholder="بحث عن كتاب أو مؤلف...">
+            <div class="header-controls">
+                <input type="text" id="search-input" placeholder="بحث عن كتاب أو مؤلف...">
+                <button id="theme-toggle">🌙 الوضع الليلي</button>
+            </div>
         </header>
         <div id="books-container" class="books-grid">
             <!-- هنا غادي يتعرضو الكتب -->
@@ -235,56 +326,62 @@
     <!-- ==================== JavaScript (المنطق) ==================== -->
     <script>
         // 1. البيانات (الكتب) - هنا فين غادي تحط الكتب ديالك
-        // ملاحظة: مسار الملفات خاصو يكون صحيح (مثلاً books/اسم-الكتاب.pdf)
         const allBooks = [
             {
                 id: 1,
                 title: "وادي الذئاب المنسية",
                 author: "عمرو عبد الحميد",
                 content: "هذا الكتاب هو الأول في سلسلة أرض زيكولا. تدور أحداثه في قرية البهو فريك...",
-                downloadUrl: "books/وادي-الذئاب-المنسية.pdf" 
+                downloadUrl: "books/وادي-الذئاب-المنسية.pdf",
+                coverUrl: "" 
             },
             {
                 id: 2,
                 title: "السجيل",
                 author: "أحمد آل حمدان",
                 content: "هذا الكتاب هو الرابع في سلسلة أبابيل. تدور أحداثه حول ملحمة الطين والنار...",
-                downloadUrl: "books/السجيل-1.pdf"
+                downloadUrl: "books/السجيل-1.pdf",
+                coverUrl: ""
             },
             {
                 id: 3,
                 title: "الجساسة",
                 author: "أحمد آل حمدان",
                 content: "هذا الكتاب هو الأول في سلسلة أبابيل. يحكي قصة عاصف وجومانا...",
-                downloadUrl: "books/الجساسة.pdf"
+                downloadUrl: "books/الجساسة.pdf",
+                coverUrl: ""
             },
             {
                 id: 4,
                 title: "آرسس",
                 author: "أحمد آل حمدان",
                 content: "هذا الكتاب هو الثاني في سلسلة أبابيل. يكمل قصة عاصف ورحلته...",
-                downloadUrl: "books/آرسس.pdf"
+                downloadUrl: "books/آرسس.pdf",
+                coverUrl: ""
             },
             {
                 id: 5,
                 title: "آرسس 2",
                 author: "أحمد آل حمدان",
                 content: "هذا الكتاب هو الثالث في سلسلة أبابيل. الجزء الثاني من آرسس...",
-                downloadUrl: "books/آرسس-2.pdf"
+                downloadUrl: "books/آرسس-2.pdf",
+                coverUrl: ""
             },
             {
                 id: 6,
                 title: "الياقوت",
                 author: "شهد قربان",
                 content: "رواية الياقوت، الكتاب الرابع من سلسلة 005. تدور أحداثها حول...",
-                downloadUrl: "books/124.pdf"
+                downloadUrl: "books/124.pdf",
+                coverUrl: ""
             },
             {
                 id: 7,
                 title: "أتابيل",
                 author: "أحمد آل حمدان",
                 content: "رواية أتابيل، الطب هو التوأم اللطيف للموت...",
-                downloadUrl: "books/79.pdf"
+                downloadUrl: "books/79.pdf",
+                coverUrl: ""
             }
         ];
 
@@ -311,7 +408,14 @@
             books.forEach(book => {
                 const bookCard = document.createElement('div');
                 bookCard.className = 'book-card';
+                
+                let coverHtml = `<div class="book-cover">لا توجد صورة</div>`;
+                if (book.coverUrl) {
+                    coverHtml = `<div class="book-cover"><img src="${book.coverUrl}" alt="${book.title}"></div>`;
+                }
+
                 bookCard.innerHTML = `
+                    ${coverHtml}
                     <h3>${book.title}</h3>
                     <p>${book.author}</p>
                     <button onclick="readBook(${book.id})">قراءة</button>
@@ -427,8 +531,32 @@
             displayBooks(filtered);
         });
 
-        // 12. بدء التطبيق
+        // 12. الوضع الليلي
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+
+        if (localStorage.getItem('theme') === 'dark') {
+            body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️ الوضع النهاري';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            if (body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+                themeToggle.textContent = '☀️ الوضع النهاري';
+            } else {
+                localStorage.setItem('theme', 'light');
+                themeToggle.textContent = '🌙 الوضع الليلي';
+            }
+        });
+
+        // 13. بدء التطبيق
         displayBooks(allBooks);
     </script>
 </body>
 </html>
+"""
+
+# عرض الموقع فـ Streamlit
+components.html(html_code, height=1000, scrolling=True)
